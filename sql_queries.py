@@ -18,9 +18,43 @@ time_table_drop = "DROP TABLE IF EXISTS time"
 ### CREATE TABLES ###
 
 staging_events_table_create= """
+    CREATE TABLE IF NOT EXISTS
+      staging_events (
+        artist VARCHAR,
+        auth VARCHAR,
+        first_name VARCHAR,
+        gender VARCHAR,
+        item_in_session INT,
+        last_name VARCHAR,
+        length DECIMAL,
+        level VARCHAR,
+        location VARCHAR,
+        method VARCHAR,
+        page VARCHAR,
+        registration DECIMAL,
+        session_id INT,
+        song VARCHAR,
+        status INT,
+        timestamp BIGINT,
+        user_agent VARCHAR,
+        user_id INT
+      )
 """
 
 staging_songs_table_create = """
+    CREATE TABLE IF NOT EXISTS
+      staging_songs (
+        num_songs INT,
+        arist_id VARCHAR,
+        artist_longitude NUMERIC,
+        artist_latitude NUMERIC,
+        artist_location VARCHAR,
+        artist_name VARCHAR,
+        song_id VARCHAR,
+        title VARCHAR,
+        duration DECIMAL,
+        year INT
+      )
 """
 
 songplay_table_create = """
@@ -86,11 +120,31 @@ time_table_create = """
 
 ### STAGING TABLES ###
 
-staging_events_copy = """
-""".format()
+staging_events_copy = f"""
+    COPY
+      staging_events
+    FROM
+      '{config['S3']['LOG_DATA']}'
+    CREDENTIALS
+      'aws_iam_role={config['DWH']['DWH_IAM_ROLE_NAME']}'
+    REGION
+      'us-west-2'
+    FORMAT AS JSON
+      {config['S3']['LOG_JSONPATH']}
+"""
 
-staging_songs_copy = """
-""".format()
+staging_songs_copy = f"""
+    COPY
+      staging_songs
+    FROM
+      '{config['S3']['SONG_DATA']}'
+    CREDENTIALS
+      'aws_iam_role={config['DWH']['DWH_IAM_ROLE_NAME']}'
+    REGION
+      'us-west-2'
+    JSON
+      'auto'
+"""
 
 ### FINAL TABLES ###
 
