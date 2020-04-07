@@ -114,7 +114,7 @@ time_table_create = """
         week_of_year SMALLINT,
         month SMALLINT,
         year SMALLINT,
-        weekday SMALLINT
+        weekday BOOLEAN
       )
 """
 
@@ -190,9 +190,14 @@ user_table_insert = """
         gender,
         level
       )
-    VALUES
-      (%s, %s, %s, %s, %s)
-    ON CONFLICT DO NOTHING
+    SELECT
+      DISTINCT user_id,
+      first_name,
+      last_name,
+      gender,
+      level
+    FROM
+      staging_events
 """
 
 song_table_insert = """
@@ -204,9 +209,14 @@ song_table_insert = """
         year,
         duration
       )
-    VALUES
-      (%s, %s, %s, %s, %s)
-    ON CONFLICT DO NOTHING
+    SELECT
+      DISTINCT song_id,
+      title,
+      artist_id,
+      year,
+      duration
+    FROM
+      staging_songs
 """
 
 artist_table_insert = """
@@ -218,9 +228,14 @@ artist_table_insert = """
         latitude,
         longitude
       )
-    VALUES
-      (%s, %s, %s, %s, %s)
-    ON CONFLICT DO NOTHING
+    SELECT
+      DISTINCT artist_id,
+      artist_name,
+      artist_location,
+      artist_latitude,
+      artist_longitude
+    FROM
+      staging_songs
 """
 
 time_table_insert = """
@@ -234,9 +249,18 @@ time_table_insert = """
         year,
         weekday
       )
-    VALUES
-      (%s, %s, %s, %s, %s, %s, %s)
-    ON CONFLICT DO NOTHING
+    SELECT
+      start_time,
+      EXTRACT(HOUR FROM start_time) AS hour,
+      EXTRACT(DAY FROM start_time) AS day,
+      EXTRACT(WEEK FROM start_time) AS week,
+      EXTRACT(MONTH FROM start_time) AS month,
+      EXTRACT(YEAR FROM start_time) AS year,
+      CASE WHEN EXTRACT(DAY FROM start_time) IN (6, 7) THEN false ELSE true
+        END AS weekday
+    FROM
+      songplays
+
 """
 
 ### QUERY LISTS ###
