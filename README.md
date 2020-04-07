@@ -82,3 +82,7 @@ ORDER BY
   2 DESC
 LIMIT 5
 ```
+
+## Acknowledgements
+- The erd was created using [Lucidchart](http://lucidchart.com)
+- [This](https://medium.com/@boscacci/why-and-how-to-make-a-requirements-txt-f329c685181e) article discusses the Python virtual environment.
