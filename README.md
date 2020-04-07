@@ -16,21 +16,29 @@ into what music their customers listen to.
 
 We have two staging tables that capture all of the data from S3. That
 information is then transformed and loaded into the fact and dimension tables
-shown at right. You will need to, however, set up your own config file. I
-reference one called **dwh.cfg** in all three of the modules discussed below.
+shown at right.
 
-## Repo Organization
-Assuming you have an active Redshift cluster, this database can be created and
-filled by running scripts in the following order:
-1. **create_tables.py:** This module connects to the Redshift cluster, drops any
-existing tables, and creates all 7 tables shown above.
+## Repo Organization: How to Use
+Assuming you have an active Redshift cluster, you can reproduce this project
+by doing the following:
 
-2. **etl.py:** This module connects to the Redshift cluster database, copies
+1. Create a virtual environment with python=3.7.4. Download the packages in
+**requirements.txt**
+
+2. Run **create_tables.py.** This module connects to the Redshift cluster, drops
+any existing tables, and creates all 7 tables shown above.
+
+  Note: You will need to set up your own config file. I reference one called **dwh.cfg** in all three of the modules discussed below.
+
+3. Run **etl.py.** This module connects to the Redshift cluster database, copies
 log_data and song_data from S3 into staging tables, and finally transforms/loads
 that data into the five fact and dimension tables above.
 
 The last module, **sql_queries.py** contains all of the SQL queries used for
 both read and write queries called from **create_tables.py** and **etl.py**.
+
+
+## How-to
 
 ## Sample Queries
 Most common user locations
