@@ -37,9 +37,6 @@ that data into the five fact and dimension tables above.
 The last module, **sql_queries.py** contains all of the SQL queries used for
 both read and write queries called from **create_tables.py** and **etl.py**.
 
-
-## How-to
-
 ## Sample Queries
 Most common user locations
 
