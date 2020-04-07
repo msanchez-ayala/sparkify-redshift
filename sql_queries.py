@@ -21,20 +21,20 @@ staging_events_table_create= """
     CREATE TABLE IF NOT EXISTS
       staging_events (
         artist VARCHAR,
-        auth VARCHAR,
-        first_name VARCHAR,
-        gender VARCHAR,
+        auth VARCHAR(20),
+        first_name VARCHAR(30),
+        gender VARCHAR(1),
         item_in_session INT,
-        last_name VARCHAR,
-        length DECIMAL,
-        level VARCHAR,
+        last_name VARCHAR(30),
+        length FLOAT,
+        level VARCHAR(4),
         location VARCHAR,
-        method VARCHAR,
-        page VARCHAR,
+        method VARCHAR(3),
+        page VARCHAR(10),
         registration DECIMAL,
         session_id INT,
         song VARCHAR,
-        status INT,
+        status SMALLINT,
         timestamp BIGINT,
         user_agent VARCHAR,
         user_id INT
@@ -44,16 +44,16 @@ staging_events_table_create= """
 staging_songs_table_create = """
     CREATE TABLE IF NOT EXISTS
       staging_songs (
-        num_songs INT,
-        arist_id VARCHAR,
-        artist_longitude NUMERIC,
-        artist_latitude NUMERIC,
+        num_songs SMALLINT,
+        arist_id VARCHAR(25),
+        artist_longitude FLOAT,
+        artist_latitude FLOAT,
         artist_location VARCHAR,
         artist_name VARCHAR,
-        song_id VARCHAR,
+        song_id VARCHAR(25),
         title VARCHAR,
-        duration DECIMAL,
-        year INT
+        duration FLOAT,
+        year SMALLINT
       )
 """
 
@@ -61,11 +61,11 @@ songplay_table_create = """
     CREATE TABLE IF NOT EXISTS
       songplays (
         songplay_id IDENTITY(0,1) PRIMARY KEY,
-        start_time TIMESTAMP,
-        user_id INT,
-        level VARCHAR,
-        song_id VARCHAR,
-        artist_id VARCHAR,
+        start_time TIMESTAMP NOT NULL SORTKEY,
+        user_id INT REFERENCES users,
+        level VARCHAR(4),
+        song_id VARCHAR(25) REFERENCES songs,
+        artist_id VARCHAR(25) REFERENCES artists,
         session_id INT,
         location VARCHAR,
         user_agent VARCHAR
@@ -75,46 +75,46 @@ songplay_table_create = """
 user_table_create = """
     CREATE TABLE IF NOT EXISTS
       users (
-        user_id INT UNIQUE NOT NULL PRIMARY KEY,
-        first_name VARCHAR,
-        last_name VARCHAR,
-        gender VARCHAR,
-        level VARCHAR
+        user_id INT PRIMARY KEY,
+        first_name VARCHAR(30),
+        last_name VARCHAR(30) SORTKEY,
+        gender VARCHAR(1),
+        level VARCHAR(4)
       )
 """
 
 song_table_create = """
     CREATE TABLE IF NOT EXISTS
       songs (
-        song_id VARCHAR UNIQUE NOT NULL PRIMARY KEY,
+        song_id VARCHAR(25) PRIMARY KEY,
         title VARCHAR NOT NULL,
-        artist_id VARCHAR NOT NULL,
-        year INT,
-        duration DECIMAL
+        artist_id VARCHAR(25) NOT NULL DISTKEY REFERENCES artists,
+        year SMALLINT,
+        duration FLOAT
       )
 """
 
 artist_table_create = """
     CREATE TABLE IF NOT EXISTS
       artists (
-        artist_id VARCHAR UNIQUE NOT NULL PRIMARY KEY,
+        artist_id VARCHAR(25) PRIMARY KEY DISTKEY,
         name VARCHAR NOT NULL,
         location VARCHAR,
-        latitude DECIMAL,
-        longitude DECIMAL
+        latitude FLOAT,
+        longitude FLOAT
       )
 """
 
 time_table_create = """
     CREATE TABLE IF NOT EXISTS
       time (
-        start_time TIMESTAMP NOT NULL PRIMARY KEY,
-        hour INT,
-        day INT,
-        week_of_year INT,
-        month INT,
-        year INT,
-        weekday INT
+        start_time TIMESTAMP PRIMARY KEY,
+        hour SMALLINT,
+        day SMALLINT,
+        week_of_year SMALLINT,
+        month SMALLINT,
+        year SMALLINT,
+        weekday SMALLINT
       )
 """
 
@@ -151,7 +151,6 @@ staging_songs_copy = f"""
 songplay_table_insert = """
     INSERT INTO
       songplays (
-        songplay_id,
         start_time,
         user_id,
         level,
@@ -161,8 +160,25 @@ songplay_table_insert = """
         location,
         user_agent
       )
-    VALUES
-      (DEFAULT, %s, %s, %s, %s, %s, %s, %s, %s)
+    SELECT
+      TIMESTAMP 'epoch' + e.ts * INTERVAL '1 second' as start_time,
+      e.user_id,
+      e.level,
+      s.song_id,
+      s.artist_id,
+      e.session_id,
+      e.location,
+      e.user_agent
+    FROM
+      staging_events e
+    JOIN
+      staging_songs s
+    ON
+      e.artist = s.artist_name AND
+      e.length = s.duration AND
+      e.song = s.title
+    WHERE
+      e.page = 'NextSong'
 """
 
 user_table_insert = """
