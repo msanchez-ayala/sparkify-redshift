@@ -62,10 +62,10 @@ songplay_table_create = """
       songplays (
         songplay_id INT IDENTITY(0,1) PRIMARY KEY,
         start_time TIMESTAMP NOT NULL SORTKEY,
-        user_id INT REFERENCES users(user_id),
+        user_id INT REFERENCES NOT NULL users(user_id),
         level VARCHAR(4),
-        song_id VARCHAR(25) REFERENCES songs(song_id),
-        artist_id VARCHAR(25) REFERENCES artists(artist_id),
+        song_id VARCHAR(25) NOT NULL REFERENCES songs(song_id),
+        artist_id VARCHAR(25) NOT NULL REFERENCES artists(artist_id),
         session_id INT,
         location VARCHAR,
         user_agent VARCHAR
