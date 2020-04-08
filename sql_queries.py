@@ -260,9 +260,12 @@ time_table_insert = """
       EXTRACT(YEAR FROM start_time) AS year,
       CASE WHEN EXTRACT(DAY FROM start_time) IN (6, 7) THEN false ELSE true
         END AS weekday
-    FROM
-      songplays
-
+    FROM (
+      SELECT
+        TIMESTAMP 'epoch' + timestamp * INTERVAL '1 second' as start_time,
+      FROM
+        staging_events
+      ) s
 """
 
 ### QUERY LISTS ###
