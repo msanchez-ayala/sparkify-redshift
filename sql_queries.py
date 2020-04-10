@@ -62,7 +62,7 @@ songplay_table_create = """
       songplays (
         songplay_id INT IDENTITY(0,1) PRIMARY KEY,
         start_time TIMESTAMP NOT NULL SORTKEY,
-        user_id INT REFERENCES NOT NULL users(user_id),
+        user_id INT NOT NULL REFERENCES users(user_id),
         level VARCHAR(4),
         song_id VARCHAR(25) NOT NULL REFERENCES songs(song_id),
         artist_id VARCHAR(25) NOT NULL REFERENCES artists(artist_id),
@@ -262,7 +262,7 @@ time_table_insert = """
         END AS weekday
     FROM (
       SELECT
-        TIMESTAMP 'epoch' + timestamp * INTERVAL '1 second' as start_time,
+        TIMESTAMP 'epoch' + timestamp * INTERVAL '1 second' as start_time
       FROM
         staging_events
       ) s
